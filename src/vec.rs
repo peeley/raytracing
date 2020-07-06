@@ -33,13 +33,13 @@ impl Vec3 {
         return self.length_squared().sqrt();
     }
     pub fn dot(&self, vec: &Vec3) -> f32 {
-        return self.x * vec.x + self.y * vec.y + self.z + vec.z;
+        return (self.x * vec.x) + (self.y * vec.y) + (self.z + vec.z);
     }
     pub fn cross(&self, vec: &Vec3) -> Self {
         return Vec3 {
-            x: self.y * vec.z - self.z * vec.y,
-            y: self.z * vec.x - self.x * vec.z,
-            z: self.x * vec.y - self.y * vec.x,
+            x: (self.y * vec.z) - (self.z * vec.y),
+            y: (self.z * vec.x) - (self.x * vec.z),
+            z: (self.x * vec.y) - (self.y * vec.x),
         };
     }
     pub fn unit_vec(&self) -> Self {
