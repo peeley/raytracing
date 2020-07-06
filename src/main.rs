@@ -11,7 +11,7 @@ fn main() {
     println!("P3\n{} {}\n255", img_width, img_height);
 
     let viewport_height = 2.0;
-    let viewport_width = viewport_height / aspect_ratio;
+    let viewport_width = aspect_ratio * viewport_height;
     let focal_length = 1.0;
 
     let origin: Vec3 = vec::Vec3::new(0.0, 0.0, 0.0);

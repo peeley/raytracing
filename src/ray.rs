@@ -1,4 +1,4 @@
-use crate::vec::{Color, Coordinate};
+use crate::vec::{Color, Coordinate, Vec3};
 
 pub struct Ray {
     origin: Coordinate,
@@ -19,11 +19,10 @@ impl Ray {
     }
     pub fn intersects_sphere(&self, center: Coordinate, radius: f32) -> bool {
         let oc = self.origin - center;
-        let a = self.direction.dot(&self.direction);
-        let b = 2.0 * oc.dot(&self.direction);
-        let c = oc.dot(&oc) - (radius * radius);
+        let a = Vec3::dot(&self.direction, &self.direction);
+        let b = 2.0 * Vec3::dot(&oc, &self.direction);
+        let c = Vec3::dot(&oc, &oc) - (radius * radius);
         let discriminant = (b * b) - (4.0 * a * c);
-        eprintln!("{}", discriminant);
         return discriminant > 0.0;
     }
     pub fn new(origin: Coordinate, direction: Coordinate) -> Ray {
