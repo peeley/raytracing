@@ -21,13 +21,15 @@ impl Hittable for Sphere {
             if temp < t_max && temp > t_min {
                 rec.t = temp;
                 rec.point = ray.at(temp);
-                rec.normal = (rec.point - self.center) / self.radius;
+                let outward_normal = (rec.point - self.center) / self.radius;
+                rec.set_face_normal(ray, outward_normal);
             }
             temp = (-half_b + root)/a;
             if temp < t_max && temp > t_min {
                 rec.t = temp;
                 rec.point = ray.at(temp);
-                rec.normal = (rec.point - self.center) / self.radius;
+                let outward_normal = (rec.point - self.center) / self.radius;
+                rec.set_face_normal(ray, outward_normal);
             }
             return true;
         }
