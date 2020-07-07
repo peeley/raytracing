@@ -1,8 +1,8 @@
 use crate::vec::{Color, Coordinate, Vec3};
 
 pub struct Ray {
-    origin: Coordinate,
-    direction: Coordinate,
+    pub origin: Coordinate,
+    pub direction: Coordinate,
 }
 
 impl Ray {
