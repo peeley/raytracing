@@ -27,13 +27,13 @@ impl Vec3 {
         Vec3 { x, y, z }
     }
     pub fn length_squared(&self) -> f32 {
-        return self.x * self.x + self.y * self.y + self.z * self.z;
+        return (self.x * self.x) + (self.y * self.y) + (self.z * self.z);
     }
     pub fn length(&self) -> f32 {
         return self.length_squared().sqrt();
     }
     pub fn dot(u: &Vec3, v: &Vec3) -> f32 {
-        return (u.x * v.x) + (u.y * v.y) + (u.z + v.z);
+        return (u.x * v.x) + (u.y * v.y) + (u.z * v.z);
     }
     pub fn cross(u: &Vec3, v: &Vec3) -> Self {
         return Vec3 {

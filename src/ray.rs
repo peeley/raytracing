@@ -12,14 +12,15 @@ impl Ray {
 
     pub fn intersects_sphere(&self, center: Coordinate, radius: f32) -> f32 {
         let oc = self.origin - center;
-        let a = Vec3::dot(&self.direction, &self.direction);
-        let b = 2.0 * Vec3::dot(&oc, &self.direction);
-        let c = Vec3::dot(&oc, &oc) - (radius * radius);
-        let discriminant = (b * b) - (4.0 * a * c);
+        let a = self.direction.length_squared();
+        let half_b = Vec3::dot(&oc, &self.direction);
+        let c = oc.length_squared() - (radius*radius);
+        let discriminant = half_b*half_b - a*c;
+
         if discriminant < 0.0 {
             return -1.0;
         }
-        return (-b - discriminant.sqrt()) / (2.0 * a);
+        return (-half_b - discriminant.sqrt()) / a;
     }
 
     pub fn color(&self) -> Color {
