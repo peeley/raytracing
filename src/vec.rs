@@ -43,7 +43,7 @@ impl Vec3 {
         };
     }
     pub fn unit_vec(&self) -> Self {
-        return *self / self.length();
+        return (*self) / self.length();
     }
 }
 
@@ -88,9 +88,9 @@ impl ops::Mul for Vec3 {
 
 impl ops::AddAssign for Vec3 {
     fn add_assign(&mut self, rhs: Vec3) {
-        self.x *= rhs.x;
-        self.y *= rhs.y;
-        self.z *= rhs.z;
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
     }
 }
 
