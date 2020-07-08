@@ -1,9 +1,11 @@
-mod ray;
-mod vec;
 mod hittable;
+mod ray;
 mod sphere;
+mod vec;
 
+use hittable::HittableList;
 use ray::Ray;
+use sphere::Sphere;
 use vec::{Color, Coordinate, Vec3};
 
 fn main() {
@@ -24,6 +26,9 @@ fn main() {
         - (vertical / 2.0)
         - vec::Coordinate::new(0.0, 0.0, focal_length);
 
+    let mut geometry = HittableList::new(Sphere::new(Coordinate::new(0.0, 0.0, -1.0), 0.5));
+    geometry.add(Sphere::new(Coordinate::new(0.0, -100.5, -1.0), 100.0));
+
     for y in (0..img_height).rev() {
         for x in 0..img_width {
             let u = x as f32 / (img_width as f32 - 1.0);
@@ -32,7 +37,7 @@ fn main() {
                 origin,
                 lower_left_corner + (u * horizontal) + (v * vertical) - origin,
             );
-            let ray_color: Color = ray.color();
+            let ray_color: Color = ray.color(&geometry);
             ray_color.print();
         }
     }
