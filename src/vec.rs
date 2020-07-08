@@ -12,12 +12,13 @@ pub type Coordinate = Vec3;
 pub type Color = Vec3;
 
 impl Color {
-    pub fn print(&self) {
+    pub fn print(&self, samples: i32) {
+        let scale = 1.0 / samples as f32;
         println!(
             "{} {} {}",
-            (255.999 * self.x) as u8,
-            (255.999 * self.y) as u8,
-            (255.999 * self.z) as u8
+            (255.999 * (self.x * scale).clamp(0.0, 0.999)) as u8,
+            (255.999 * (self.y * scale).clamp(0.0, 0.999)) as u8,
+            (255.999 * (self.z * scale).clamp(0.0, 0.999)) as u8
         );
     }
 }

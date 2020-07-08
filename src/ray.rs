@@ -1,5 +1,5 @@
 use crate::hittable::{HitRecord, Hittable, HittableList};
-use crate::vec::{Color, Coordinate, Vec3};
+use crate::vec::{Color, Coordinate};
 
 pub struct Ray {
     pub origin: Coordinate,
@@ -13,7 +13,7 @@ impl Ray {
 
     pub fn color<T: Hittable>(&self, world: &HittableList<T>) -> Color {
         let mut rec = HitRecord::new();
-        if world.hit(self, 0.0, 1000.0, &mut rec) {
+        if world.hit(self, 0.0, std::f32::INFINITY, &mut rec) {
             return 0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0));
         }
         let unit_dir = self.direction.unit_vec();
