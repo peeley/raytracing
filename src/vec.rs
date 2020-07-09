@@ -1,3 +1,4 @@
+use rand::{thread_rng, Rng};
 use std::fmt;
 use std::ops;
 
@@ -16,9 +17,9 @@ impl Color {
         let scale = 1.0 / samples as f32;
         println!(
             "{} {} {}",
-            (255.999 * (self.x * scale).clamp(0.0, 0.999)) as u8,
-            (255.999 * (self.y * scale).clamp(0.0, 0.999)) as u8,
-            (255.999 * (self.z * scale).clamp(0.0, 0.999)) as u8
+            (255.999 * (self.x * scale).sqrt().clamp(0.0, 0.999)) as u8,
+            (255.999 * (self.y * scale).sqrt().clamp(0.0, 0.999)) as u8,
+            (255.999 * (self.z * scale).sqrt().clamp(0.0, 0.999)) as u8
         );
     }
 }
@@ -45,6 +46,43 @@ impl Vec3 {
     }
     pub fn unit_vec(&self) -> Self {
         return (*self) / self.length();
+    }
+    pub fn random(min: Option<f32>, max: Option<f32>) -> Self {
+        let mut rng = thread_rng();
+        let min_val = min.unwrap_or(0.0);
+        let max_val = max.unwrap_or(1.0);
+        Vec3 {
+            x: rng.gen_range(min_val, max_val),
+            y: rng.gen_range(min_val, max_val),
+            z: rng.gen_range(min_val, max_val),
+        }
+    }
+    pub fn random_unit() -> Self {
+        let mut rng = thread_rng();
+        let a = rng.gen_range(0.0, 2.0 * std::f32::consts::PI);
+        let z: f32 = rng.gen_range(-1.0, 1.0);
+        let r = (1.0 - z * z).sqrt();
+        Vec3 {
+            x: r * a.cos(),
+            y: r * a.sin(),
+            z,
+        }
+    }
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let p = Vec3::random(Some(-1.0), Some(1.0));
+            if p.length_squared() >= 1.0 {
+                continue;
+            }
+            return p;
+        }
+    }
+    pub fn random_in_hemisphere(&self) -> Self {
+        let in_unit_sphere = Vec3::random_in_unit_sphere();
+        if Vec3::dot(&in_unit_sphere, self) > 0.0 {
+            return in_unit_sphere;
+        }
+        return -in_unit_sphere;
     }
 }
 

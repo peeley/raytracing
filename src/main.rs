@@ -5,6 +5,7 @@ mod ray;
 mod sphere;
 mod vec;
 mod camera;
+mod material;
 
 use hittable::HittableList;
 use sphere::Sphere;
@@ -33,7 +34,7 @@ fn main() {
                 let u = (x as f32 + rng.gen_range(0.0, 1.0)) / (img_width as f32 - 1.0);
                 let v = (y as f32 + rng.gen_range(0.0, 1.0)) / (img_height as f32 - 1.0);
                 let ray = camera.get_ray(u, v);
-                color += ray.color(&geometry);
+                color += ray.color(&geometry, 5);
             }
             color.print(samples_per_pix);
         }
