@@ -3,5 +3,5 @@ use crate::ray::Ray;
 use crate::vec::Color;
 
 pub trait Material {
-    fn scatter(ray: &Ray, rec: &HitRecord, color: &Color, scattered: &Ray) -> bool;
+    fn scatter<T: Material>(ray: &Ray, rec: &HitRecord<T>, color: &Color, scattered: &Ray) -> bool;
 }

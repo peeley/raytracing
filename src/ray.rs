@@ -1,5 +1,6 @@
 use crate::hittable::{HitRecord, Hittable, HittableList};
 use crate::vec::{Color, Coordinate};
+use crate::material::Material;
 
 pub struct Ray {
     pub origin: Coordinate,
@@ -11,7 +12,7 @@ impl Ray {
         return self.origin + (self.direction * t);
     }
 
-    pub fn color<T: Hittable>(&self, world: &HittableList<T>, depth: i32) -> Color {
+    pub fn color<U: Material, T: Hittable<U>>(&self, world: &HittableList<T, U>, depth: i32) -> Color {
         if depth <= 0 {
             return Color::new(0.0, 0.0, 0.0);
         }
