@@ -1,17 +1,18 @@
 #![feature(clamp)]
 
+mod camera;
 mod hittable;
+mod material;
 mod ray;
 mod sphere;
 mod vec;
-mod camera;
-mod material;
 
+use camera::Camera;
 use hittable::HittableList;
+use material::Material;
+use rand::{thread_rng, Rng};
 use sphere::Sphere;
 use vec::{Color, Coordinate};
-use camera::Camera;
-use rand::{thread_rng, Rng};
 
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
@@ -23,11 +24,38 @@ fn main() {
 
     let camera = Camera::new();
 
-    let mut geometry = HittableList::new(Sphere::new(Coordinate::new(0.0, 0.0, -1.0), 0.5));
-    geometry.add(Sphere::new(Coordinate::new(0.0, -100.5, -1.0), 100.0));
+    let mut geometry = HittableList::new(Sphere::new(
+        Coordinate::new(0.0, 0.0, -1.0),
+        0.5,
+        Material::Lambertian {
+            albedo: Color::new(0.7, 0.3, 0.3),
+        },
+    ));
+    geometry.add(Sphere::new(
+        Coordinate::new(0.0, -100.5, -1.0),
+        100.0,
+        Material::Lambertian {
+            albedo: Color::new(0.8, 0.8, 0.0),
+        },
+    ));
+    geometry.add(Sphere::new(
+        Coordinate::new(1.0, 0.0, -1.0),
+        0.5,
+        Material::Metal {
+            albedo: Color::new(0.8, 0.6, 0.2),
+        },
+    ));
+    geometry.add(Sphere::new(
+        Coordinate::new(-1.0, 0.0, -1.0),
+        0.5,
+        Material::Metal {
+            albedo: Color::new(0.8, 0.8, 0.8),
+        },
+    ));
 
     let mut rng = thread_rng();
     for y in (0..img_height).rev() {
+        eprintln!("{} scan lines left...", y);
         for x in 0..img_width {
             let mut color = Color::new(0.0, 0.0, 0.0);
             for _ in 0..samples_per_pix {
@@ -39,4 +67,5 @@ fn main() {
             color.print(samples_per_pix);
         }
     }
+    eprintln!("Done!");
 }
