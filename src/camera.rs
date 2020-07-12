@@ -15,7 +15,7 @@ impl Camera {
         let viewport_width = aspect_ratio * viewport_height;
         let focal_length = 1.0;
 
-        let origin = Coordinate::new(0.0, 0.0, 0.0);
+        let origin = Coordinate::default();
         let horizontal = Coordinate::new(viewport_width, 0.0, 0.0);
         let vertical = Coordinate::new(0.0, viewport_height, 0.0);
         let lower_left_corner = origin

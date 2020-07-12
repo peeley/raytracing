@@ -43,6 +43,7 @@ fn main() {
         0.5,
         Material::Metal {
             albedo: Color::new(0.8, 0.6, 0.2),
+            fuzziness: 0.3,
         },
     ));
     geometry.add(Sphere::new(
@@ -50,6 +51,7 @@ fn main() {
         0.5,
         Material::Metal {
             albedo: Color::new(0.8, 0.8, 0.8),
+            fuzziness: 1.0,
         },
     ));
 
@@ -57,7 +59,7 @@ fn main() {
     for y in (0..img_height).rev() {
         eprintln!("{} scan lines left...", y);
         for x in 0..img_width {
-            let mut color = Color::new(0.0, 0.0, 0.0);
+            let mut color = Color::default();
             for _ in 0..samples_per_pix {
                 let u = (x as f32 + rng.gen_range(0.0, 1.0)) / (img_width as f32 - 1.0);
                 let v = (y as f32 + rng.gen_range(0.0, 1.0)) / (img_height as f32 - 1.0);

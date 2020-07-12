@@ -5,7 +5,7 @@ use crate::vec::{Color, Vec3};
 #[derive(Clone, Copy)]
 pub enum Material {
     Lambertian { albedo: Color },
-    Metal { albedo: Color },
+    Metal { albedo: Color, fuzziness: f32 },
 }
 
 pub fn scatter(ray: &Ray, rec: &mut HitRecord, color: &mut Color, scattered: &mut Ray) -> bool {
@@ -16,9 +16,12 @@ pub fn scatter(ray: &Ray, rec: &mut HitRecord, color: &mut Color, scattered: &mu
             *color = albedo;
             return true;
         }
-        Material::Metal { albedo } => {
+        Material::Metal { albedo, fuzziness } => {
             let reflected = reflect(ray.direction, rec.normal);
-            *scattered = Ray::new(rec.point, reflected);
+            *scattered = Ray::new(
+                rec.point,
+                reflected + fuzziness * Vec3::random_in_unit_sphere(),
+            );
             *color = albedo;
             return Vec3::dot(&scattered.direction, &rec.normal) > 0.0;
         }

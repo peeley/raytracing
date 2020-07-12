@@ -14,12 +14,12 @@ pub struct HitRecord {
 impl HitRecord {
     pub fn new() -> Self {
         HitRecord {
-            point: Coordinate::new(0.0, 0.0, 0.0),
-            normal: Vec3::new(0.0, 0.0, 0.0),
+            point: Coordinate::default(),
+            normal: Vec3::default(),
             t: 0.0,
             front_face: false,
             material: Material::Lambertian {
-                albedo: Color::new(0.0, 0.0, 0.0),
+                albedo: Color::default(),
             },
         }
     }
