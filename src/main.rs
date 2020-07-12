@@ -49,9 +49,15 @@ fn main() {
     geometry.add(Sphere::new(
         Coordinate::new(-1.0, 0.0, -1.0),
         0.5,
-        Material::Metal {
-            albedo: Color::new(0.8, 0.8, 0.8),
-            fuzziness: 1.0,
+        Material::Dielectric {
+            ref_idx: 1.5,
+        },
+    ));
+    geometry.add(Sphere::new(
+        Coordinate::new(-1.0, 0.0, -1.0),
+        -0.45,
+        Material::Dielectric {
+            ref_idx: 1.5,
         },
     ));
 
