@@ -22,13 +22,19 @@ fn main() {
 
     let samples_per_pix = 100;
 
-    let camera = Camera::new();
+    let camera = Camera::new(
+        Coordinate::new(-2.0, 2.0, 1.0),
+        Coordinate::new(0.0, 0.0, -1.0),
+        Coordinate::new(0.0, 1.0, 0.0),
+        20.0,
+        img_width as f32 / img_height as f32,
+    );
 
     let mut geometry = HittableList::new(Sphere::new(
         Coordinate::new(0.0, 0.0, -1.0),
         0.5,
         Material::Lambertian {
-            albedo: Color::new(0.7, 0.3, 0.3),
+            albedo: Color::new(0.1, 0.2, 0.5),
         },
     ));
     geometry.add(Sphere::new(
@@ -49,16 +55,12 @@ fn main() {
     geometry.add(Sphere::new(
         Coordinate::new(-1.0, 0.0, -1.0),
         0.5,
-        Material::Dielectric {
-            ref_idx: 1.5,
-        },
+        Material::Dielectric { ref_idx: 1.5 },
     ));
     geometry.add(Sphere::new(
         Coordinate::new(-1.0, 0.0, -1.0),
         -0.45,
-        Material::Dielectric {
-            ref_idx: 1.5,
-        },
+        Material::Dielectric { ref_idx: 1.5 },
     ));
 
     let mut rng = thread_rng();
