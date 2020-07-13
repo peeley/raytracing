@@ -10,7 +10,7 @@ pub enum Material {
     Dielectric { ref_idx: f32 },
 }
 
-pub fn scatter(ray: &Ray, rec: &mut HitRecord, color: &mut Color, scattered: &mut Ray) -> bool {
+pub fn scatter(ray: &Ray, rec: &HitRecord, color: &mut Color, scattered: &mut Ray) -> bool {
     match rec.material {
         Material::Lambertian { albedo } => {
             let scatter_dir = rec.normal + Vec3::random_unit();
@@ -37,7 +37,7 @@ pub fn scatter(ray: &Ray, rec: &mut HitRecord, color: &mut Color, scattered: &mu
             let unit_dir = ray.direction.unit_vec();
             let cos_theta = Vec3::dot(&(-unit_dir), &rec.normal).min(1.0);
             let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
-            if eta_quotient * sin_theta > 1.0 {
+            if (eta_quotient * sin_theta) > 1.0 {
                 let reflected = reflect(unit_dir, rec.normal);
                 *scattered = Ray::new(rec.point, reflected);
                 return true;
@@ -63,12 +63,12 @@ pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
 pub fn refract(uv: Vec3, n: Vec3, eta_quotient: f32) -> Vec3 {
     let cos_theta = Vec3::dot(&(-uv), &n);
     let r_out_parallel = eta_quotient * (uv + cos_theta * n);
-    let r_out_perp = (-(1.0 - r_out_parallel.length_squared()).sqrt()) * n;
+    let r_out_perp = -(1.0 - r_out_parallel.length_squared()).sqrt() * n;
     return r_out_parallel + r_out_perp;
 }
 
 pub fn schlick(cosine: f32, ref_idx: f32) -> f32 {
     let mut r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
-    r0 *= r0;
+    r0 = r0 * r0;
     return r0 + (1.0 - r0) * (1.0 - cosine).powi(5);
 }
