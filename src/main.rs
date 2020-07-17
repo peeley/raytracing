@@ -22,12 +22,16 @@ fn main() {
 
     let samples_per_pix = 100;
 
+    let look_from = Coordinate::new(3.0, 3.0, 2.0); // look_from
+    let look_to = Coordinate::new(0.0, 0.0, -1.0); // look_at
     let camera = Camera::new(
-        Coordinate::new(-2.0, 2.0, 1.0),
-        Coordinate::new(0.0, 0.0, -1.0),
-        Coordinate::new(0.0, 1.0, 0.0),
-        20.0,
-        img_width as f32 / img_height as f32,
+        look_from,
+        look_to,
+        Coordinate::new(0.0, 1.0, 0.0), // vup
+        20.0,                           // vfov
+        aspect_ratio,                   // aspect_ratio
+        2.0,                            // aperture
+        (look_from - look_to).length(), // focus_distance
     );
 
     let mut geometry = HittableList::new(Sphere::new(
