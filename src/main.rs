@@ -16,7 +16,7 @@ use vec::{Color, Coordinate};
 
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
-    let img_width = 960;
+    let img_width = 480;
     let img_height = (img_width as f32 / aspect_ratio) as i32;
     println!("P3\n{} {}\n255", img_width, img_height);
 
