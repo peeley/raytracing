@@ -18,9 +18,7 @@ impl HitRecord {
             normal: Vec3::default(),
             t: 0.0,
             front_face: false,
-            material: Material::Lambertian {
-                albedo: Color::default(),
-            },
+            material: Material::Lambertian(Color::default()),
         }
     }
     pub fn set_face_normal(&mut self, ray: &Ray, normal: Vec3) {

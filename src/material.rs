@@ -5,20 +5,20 @@ use rand::{thread_rng, Rng};
 
 #[derive(Clone, Copy)]
 pub enum Material {
-    Lambertian { albedo: Color },
-    Metal { albedo: Color, fuzziness: f32 },
-    Dielectric { ref_idx: f32 },
+    Lambertian(Color),
+    Metal(Color, f32),
+    Dielectric(f32),
 }
 
 pub fn scatter(ray: &Ray, rec: &HitRecord, color: &mut Color, scattered: &mut Ray) -> bool {
     match rec.material {
-        Material::Lambertian { albedo } => {
+        Material::Lambertian(albedo) => {
             let scatter_dir = rec.normal + Vec3::random_unit();
             *scattered = Ray::new(rec.point, scatter_dir);
             *color = albedo;
             return true;
         }
-        Material::Metal { albedo, fuzziness } => {
+        Material::Metal(albedo, fuzziness) => {
             let reflected = reflect(ray.direction, rec.normal);
             *scattered = Ray::new(
                 rec.point,
@@ -27,7 +27,7 @@ pub fn scatter(ray: &Ray, rec: &HitRecord, color: &mut Color, scattered: &mut Ra
             *color = albedo;
             return Vec3::dot(&scattered.direction, &rec.normal) > 0.0;
         }
-        Material::Dielectric { ref_idx } => {
+        Material::Dielectric(ref_idx) => {
             *color = Color::new(1.0, 1.0, 1.0);
             let eta_quotient = if rec.front_face {
                 1.0 / ref_idx

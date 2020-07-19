@@ -16,7 +16,7 @@ use vec::{Color, Coordinate};
 
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
-    let img_width = 480;
+    let img_width = 960;
     let img_height = (img_width as f32 / aspect_ratio) as i32;
     println!("P3\n{} {}\n255", img_width, img_height);
 
@@ -31,7 +31,7 @@ fn main() {
         20.0,                           // vfov
         aspect_ratio,                   // aspect_ratio
         0.1,                            // aperture
-        10.0, // focus_distance
+        10.0,                           // focus_distance
     );
 
     let scene = random_scene();
@@ -58,9 +58,7 @@ fn random_scene() -> HittableList<Sphere> {
     let mut world = HittableList::new(Sphere::new(
         Coordinate::new(0.0, -1000.0, 0.0),
         1000.0,
-        Material::Lambertian {
-            albedo: Color::new(0.5, 0.5, 0.5),
-        },
+        Material::Lambertian(Color::new(0.5, 0.5, 0.5)),
     ));
 
     for a in -11..11 {
@@ -75,21 +73,13 @@ fn random_scene() -> HittableList<Sphere> {
                 if choose_mat < 0.8 {
                     let albedo =
                         Color::random(Some(0.0), Some(1.0)) * Color::random(Some(0.0), Some(1.0));
-                    world.add(Sphere::new(center, 0.2, Material::Lambertian { albedo }))
+                    world.add(Sphere::new(center, 0.2, Material::Lambertian(albedo)))
                 } else if choose_mat < 0.95 {
                     let albedo = Color::random(Some(0.5), Some(1.0));
                     let fuzziness = rng.gen_range(0.0, 0.5);
-                    world.add(Sphere::new(
-                        center,
-                        0.2,
-                        Material::Metal { albedo, fuzziness },
-                    ));
+                    world.add(Sphere::new(center, 0.2, Material::Metal(albedo, fuzziness)));
                 } else {
-                    world.add(Sphere::new(
-                        center,
-                        0.2,
-                        Material::Dielectric { ref_idx: 1.5 },
-                    ))
+                    world.add(Sphere::new(center, 0.2, Material::Dielectric(1.5)))
                 }
             }
         }
@@ -98,19 +88,17 @@ fn random_scene() -> HittableList<Sphere> {
     world.add(Sphere::new(
         Coordinate::new(0.0, 1.0, 0.0),
         1.0,
-        Material::Dielectric { ref_idx: 1.5 },
+        Material::Dielectric(1.5),
     ));
     world.add(Sphere::new(
         Coordinate::new(-4.0, 1.0, 0.0),
         1.0,
-        Material::Lambertian {
-            albedo: Color::new(0.4, 0.2, 0.1),
-        },
+        Material::Lambertian(Color::new(0.4, 0.2, 0.1)),
     ));
     world.add(Sphere::new(
         Coordinate::new(4.0, 1.0, 0.0),
         1.0,
-        Material::Metal { albedo: Color::new(0.7, 0.6, 0.5), fuzziness: 0.0 },
+        Material::Metal(Color::new(0.7, 0.6, 0.5), 0.0),
     ));
 
     return world;
