@@ -13,6 +13,8 @@ use material::Material;
 use rand::{thread_rng, Rng};
 use sphere::Sphere;
 use vec::{Color, Coordinate};
+use std::thread;
+use std::sync::Arc;
 
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
@@ -24,7 +26,7 @@ fn main() {
 
     let look_from = Coordinate::new(13.0, 2.0, 3.0); // look_from
     let look_to = Coordinate::new(0.0, 0.0, 0.0); // look_at
-    let camera = Camera::new(
+    let camera = Arc::new(Camera::new(
         look_from,
         look_to,
         Coordinate::new(0.0, 1.0, 0.0), // vup
@@ -32,23 +34,26 @@ fn main() {
         aspect_ratio,                   // aspect_ratio
         0.1,                            // aperture
         10.0,                           // focus_distance
-    );
+    ));
 
     let scene = random_scene();
 
-    let mut rng = thread_rng();
     for y in (0..img_height).rev() {
         eprintln!("{} scan lines left...", y);
-        for x in 0..img_width {
-            let mut color = Color::default();
-            for _ in 0..samples_per_pix {
-                let u = (x as f32 + rng.gen_range(0.0, 1.0)) / (img_width as f32 - 1.0);
-                let v = (y as f32 + rng.gen_range(0.0, 1.0)) / (img_height as f32 - 1.0);
-                let ray = camera.get_ray(u, v);
-                color += ray.color(&scene, 5);
+        let cam_clone = Arc::clone(&camera);
+        let handle = thread::spawn( move || {
+            let mut rng = thread_rng();
+            for x in 0..img_width {
+                let mut color = Color::default();
+                for _ in 0..samples_per_pix {
+                    let u = (x as f32 + rng.gen_range(0.0, 1.0)) / (img_width as f32 - 1.0);
+                    let v = (y as f32 + rng.gen_range(0.0, 1.0)) / (img_height as f32 - 1.0);
+                    let ray = cam_clone.get_ray(u, v);
+                    color += ray.color(&scene, 5);
+                }
+                color.print(samples_per_pix);
             }
-            color.print(samples_per_pix);
-        }
+        });
     }
     eprintln!("Done!");
 }
