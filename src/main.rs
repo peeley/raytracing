@@ -12,13 +12,13 @@ use hittable::HittableList;
 use material::Material;
 use rand::{thread_rng, Rng};
 use sphere::Sphere;
-use vec::{Color, Coordinate};
+use std::sync::{Arc, Mutex};
 use std::thread;
-use std::sync::Arc;
+use vec::{Color, Coordinate};
 
 fn main() {
     let aspect_ratio = 16.0 / 9.0;
-    let img_width = 480;
+    let img_width = 960;
     let img_height = (img_width as f32 / aspect_ratio) as i32;
     println!("P3\n{} {}\n255", img_width, img_height);
 
@@ -36,24 +36,51 @@ fn main() {
         10.0,                           // focus_distance
     ));
 
-    let scene = random_scene();
+    let scene = Arc::new(random_scene());
 
-    for y in (0..img_height).rev() {
-        eprintln!("{} scan lines left...", y);
+    let mut thread_handles = vec![];
+    let num_cores = 4;
+    let block_size = img_height / num_cores;
+    let num_pixels = (img_height * img_width) as usize;
+    let colors: Arc<Mutex<std::vec::Vec<String>>> =
+        Arc::new(Mutex::new(vec![String::new(); num_pixels]));
+
+    for block_num in 0..num_cores {
+        let block_start = block_num * block_size;
+        let block_end = block_start + block_size;
+        eprintln!("scanning lines {} through {}", block_start, block_end);
+
         let cam_clone = Arc::clone(&camera);
-        let handle = thread::spawn( move || {
-            let mut rng = thread_rng();
-            for x in 0..img_width {
-                let mut color = Color::default();
-                for _ in 0..samples_per_pix {
-                    let u = (x as f32 + rng.gen_range(0.0, 1.0)) / (img_width as f32 - 1.0);
-                    let v = (y as f32 + rng.gen_range(0.0, 1.0)) / (img_height as f32 - 1.0);
-                    let ray = cam_clone.get_ray(u, v);
-                    color += ray.color(&scene, 5);
+        let scene_clone = Arc::clone(&scene);
+        let colors_clone = Arc::clone(&colors);
+        let thread_handle = thread::spawn(move || {
+            for y in block_start..block_end {
+                eprintln!("{} scan lines left...", y);
+                let mut rng = thread_rng();
+                for x in 0..img_width {
+                    let mut color = Color::default();
+
+                    for _ in 0..samples_per_pix {
+                        let u = (x as f32 + rng.gen_range(0.0, 1.0)) / (img_width as f32 - 1.0);
+                        let v = (y as f32 + rng.gen_range(0.0, 1.0)) / (img_height as f32 - 1.0);
+                        let ray = cam_clone.get_ray(u, v);
+                        color += ray.color(&scene_clone, 5);
+                    }
+                    let mut color_lock = (*colors_clone).lock().unwrap();
+                    let pix_idx = (y * img_width + x) as usize;
+                    (*color_lock)[pix_idx] = color.to_string(samples_per_pix);
                 }
-                color.print(samples_per_pix);
             }
         });
+        thread_handles.push(thread_handle);
+    }
+    for handle in thread_handles {
+        handle.join().unwrap();
+    }
+    let colors_clone = Arc::clone(&colors);
+    let color_lock = (*colors_clone).lock().unwrap();
+    for color in &*color_lock {
+        println!("{}", color);
     }
     eprintln!("Done!");
 }
