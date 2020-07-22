@@ -67,7 +67,7 @@ fn main() {
                         color += ray.color(&scene_clone, 5);
                     }
                     let mut color_lock = (*colors_clone).lock().unwrap();
-                    let pix_idx = (y * img_width + x) as usize;
+                    let pix_idx = ((img_height - 1 - y) * img_width + x) as usize;
                     (*color_lock)[pix_idx] = color.to_string(samples_per_pix);
                 }
             }
@@ -79,6 +79,7 @@ fn main() {
     }
     let colors_clone = Arc::clone(&colors);
     let color_lock = (*colors_clone).lock().unwrap();
+    eprintln!("Writing to output...");
     for color in &*color_lock {
         println!("{}", color);
     }
