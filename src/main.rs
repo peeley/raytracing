@@ -14,13 +14,15 @@ use rand::{thread_rng, Rng};
 use sphere::Sphere;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::vec::Vec;
 use vec::{Color, Coordinate};
 
 fn main() {
-    let aspect_ratio = 16.0 / 9.0;
-    let img_width = 960;
-    let img_height = (img_width as f32 / aspect_ratio) as i32;
-    println!("P3\n{} {}\n255", img_width, img_height);
+    const ASPECT_RATIO: f32 = 16.0 / 9.0;
+    const NUM_CORES: i32 = 4;
+    const IMG_WIDTH: i32 = 960;
+    const IMG_HEIGHT: i32 = (IMG_WIDTH as f32 / ASPECT_RATIO) as i32;
+    println!("P3\n{} {}\n255", IMG_WIDTH, IMG_HEIGHT);
 
     let samples_per_pix = 100;
 
@@ -31,7 +33,7 @@ fn main() {
         look_to,
         Coordinate::new(0.0, 1.0, 0.0), // vup
         20.0,                           // vfov
-        aspect_ratio,                   // aspect_ratio
+        ASPECT_RATIO,                   // aspect_ratio
         0.1,                            // aperture
         10.0,                           // focus_distance
     ));
@@ -39,13 +41,11 @@ fn main() {
     let scene = Arc::new(random_scene());
 
     let mut thread_handles = vec![];
-    let num_cores = 4;
-    let block_size = img_height / num_cores;
-    let num_pixels = (img_height * img_width) as usize;
-    let colors: Arc<Mutex<std::vec::Vec<String>>> =
-        Arc::new(Mutex::new(vec![String::new(); num_pixels]));
+    let block_size: i32 = IMG_HEIGHT / NUM_CORES;
+    let num_pixels: usize = (IMG_HEIGHT * IMG_WIDTH) as usize;
+    let colors: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(vec![String::new(); num_pixels]));
 
-    for block_num in 0..num_cores {
+    for block_num in 0..NUM_CORES {
         let block_start = block_num * block_size;
         let block_end = block_start + block_size;
         eprintln!("scanning lines {} through {}", block_start, block_end);
@@ -57,18 +57,18 @@ fn main() {
             for y in block_start..block_end {
                 eprintln!("{} scan lines left...", y);
                 let mut rng = thread_rng();
-                for x in 0..img_width {
+                for x in 0..IMG_WIDTH {
                     let mut color = Color::default();
 
                     for _ in 0..samples_per_pix {
-                        let u = (x as f32 + rng.gen_range(0.0, 1.0)) / (img_width as f32 - 1.0);
-                        let v = (y as f32 + rng.gen_range(0.0, 1.0)) / (img_height as f32 - 1.0);
+                        let u = (x as f32 + rng.gen_range(0.0, 1.0)) / (IMG_WIDTH as f32 - 1.0);
+                        let v = (y as f32 + rng.gen_range(0.0, 1.0)) / (IMG_HEIGHT as f32 - 1.0);
                         let ray = cam_clone.get_ray(u, v);
                         color += ray.color(&scene_clone, 5);
                     }
-                    let mut color_lock = (*colors_clone).lock().unwrap();
-                    let pix_idx = ((img_height - 1 - y) * img_width + x) as usize;
-                    (*color_lock)[pix_idx] = color.to_string(samples_per_pix);
+                    let pix_idx = ((IMG_HEIGHT - 1 - y) * IMG_WIDTH + x) as usize;
+                    let mut colors_lock = (*colors_clone).lock().unwrap();
+                    (*colors_lock)[pix_idx] = color.to_string(samples_per_pix);
                 }
             }
         });
@@ -77,10 +77,10 @@ fn main() {
     for handle in thread_handles {
         handle.join().unwrap();
     }
-    let colors_clone = Arc::clone(&colors);
-    let color_lock = (*colors_clone).lock().unwrap();
     eprintln!("Writing to output...");
-    for color in &*color_lock {
+    let colors_clone = Arc::clone(&colors);
+    let colors_lock = (*colors_clone).lock().unwrap();
+    for color in colors_lock.iter() {
         println!("{}", color);
     }
     eprintln!("Done!");
